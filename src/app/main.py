@@ -1,18 +1,27 @@
-from prefect import task, Flow, Parameter
+from prefect import task, Flow
+import prefect
 
 
 @task
-def add(x, y=1):
-    return x + y
+def create_cluster():
+    print("create_cluster")
 
 
 @task
-def say_hello(person: str) -> None:
-    print("Hello, {}!".format(person))
+def run_spark_job():
+    if True:
+        raise RuntimeError()
+    print("run_spark_job")
 
 
-with Flow("My first flow!") as flow:
-    name = Parameter("name")
-    say_hello(name)
+@task(trigger=prefect.triggers.always_run)
+def tear_down_cluster():
+    print("tear_down_cluster")
 
-state = flow.run(name="Marvin")
+
+with Flow("Spark") as flow:
+    create_cluster()
+    run_spark_job()
+    tear_down_cluster()
+
+flow.run()
